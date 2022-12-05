@@ -38,6 +38,7 @@ contract Stakeholder {
         //sets variables 
         stakeholderAddr = manufacturer;
         stakeholderName = "Manufacturer";
+        getStakeholder();
         emit drugTransfer(address(0), stakeholderAddr);
         //creates the drug on initiation of contract
         createDrug();
@@ -65,7 +66,7 @@ contract Stakeholder {
  
     //Changes the stakeholder of the drug
     function changeStakeholder(address newStakeholderAddr) private {
-        if(this.safeDrug()){
+        if(safeDrug()){
             //determines stakeolder name
             if(newStakeholderAddr == manufacturer){
                 stakeholderName = "Manufacturer";
@@ -87,17 +88,21 @@ contract Stakeholder {
     function nextStakeholder() public {
         if(stakeholderAddr == manufacturer){
             changeStakeholder(wholesaler);
+            getStakeholder();
         } else if (stakeholderAddr == wholesaler){
             changeStakeholder(pharmacist);
+            getStakeholder();
         } else if (stakeholderAddr == pharmacist){
             changeStakeholder(patient);
+            getStakeholder();
         } else if (stakeholderAddr == patient){
+            getStakeholder();
             revert endUserReached("Patient already has the drug, data currently being collected.");
         }
     }
  
     //getter for the current stakeholder of the drug
-    function getStakeholder() external view returns (address) {
+    function getStakeholder() private view returns (address) {
         console.log("Stakeholder is now:", stakeholderName);
         return stakeholderAddr;
     }
@@ -131,7 +136,7 @@ contract Stakeholder {
     }
  
     //Only check for the ingredients, other stuff not so important.
-    function safeDrug() external view returns (bool) {
+    function safeDrug() private view returns (bool) {
         //name 
         string memory name_a = SHdrugs[0].name;
         string memory name_b = f_name;
@@ -158,10 +163,25 @@ contract Stakeholder {
                             if(init_a == init_b){
                                 console.log("Drug is safe");
                                 return true;
+                            } else {
+                                console.log("Drug is unsafe!");
+                                return false;
                             }
+                        } else {
+                            console.log("Drug is unsafe!");
+                            return false;
                         }
+                    } else {
+                        console.log("Drug is unsafe!");
+                        return false;
                     }
+                } else {
+                    console.log("Drug is unsafe!");
+                    return false;
                 }
+            } else {
+                console.log("Drug is unsafe!");
+                return false;
             }
         } else {
             console.log("Drug is unsafe!");
@@ -172,21 +192,27 @@ contract Stakeholder {
     //functions for changing the proporties of the drug - criminal act 
     function changeName(string memory s) public {
         SHdrugs[0].name = s;
+        showDrug();
     }
     function changeIngredients(string memory s) public {
         SHdrugs[0].ingred = s;
+        showDrug();
     }
     function changeDosage(uint i) public {
         SHdrugs[0].dos = i;
+        showDrug();
     }
     function changeWarning(string memory s) public {
         SHdrugs[0].warn = s;
+        showDrug();
     }
     function changeManufacturer(string memory s) public {
         SHdrugs[0].manufac = s;
+        showDrug();
     }
     function changeInitilisation(bool b) public {
         SHdrugs[0].init = b;
+        showDrug();
     }
  
     //Only mutable for demonstration purposes so ignore warning
@@ -194,6 +220,7 @@ contract Stakeholder {
         console.log("Drug Name:", SHdrugs[0].name, ", Ingredients include: ", SHdrugs[0].ingred);
         console.log("Dosage is: ", SHdrugs[0].dos, ", Warnings are: ", SHdrugs[0].warn);
         console.log("Manufacturer is: ", SHdrugs[0].manufac);
+        safeDrug();
     }
  
 }
