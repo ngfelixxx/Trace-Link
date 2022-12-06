@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
+// Author: Felix Ng 
 pragma solidity >=0.7.0 <0.9.0;
 import "hardhat/console.sol";
  
@@ -11,11 +12,11 @@ contract Stakeholder {
     //other metrics
     uint private numDrugs;
  
-    //could add function to move stakeholders automatically
+    //could add function to move stakeholders automatically 
     address private manufacturer = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
-    address private wholesaler = 0xc0ffee254729296a45a3885639AC7E10F9d54979;
-    address private pharmacist = 0x71C7656EC7ab88b098defB751B7401B5f6d8976F;
-    address private patient = 0x0000000000000000000000000000000000000000;
+    address private wholesaler = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+    address private pharmacist = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
+    address private patient = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
 
     //default drug information 
     string private f_name = "Paracetamol";
@@ -32,7 +33,8 @@ contract Stakeholder {
     error tooManyDrugs(string message);
  
     //initalise the smart contract
-    constructor() { 
+    constructor() public payable{ 
+        payer = msg.sender;
         //alarms console 
         console.log("Stakeholder contract deployed by:", manufacturer);
         //sets variables 
@@ -65,7 +67,7 @@ contract Stakeholder {
     }
  
     //Changes the stakeholder of the drug
-    function changeStakeholder(address newStakeholderAddr) private {
+    function changeStakeholder(address newStakeholderAddr) private{
         if(safeDrug()){
             //determines stakeolder name
             if(newStakeholderAddr == manufacturer){
@@ -222,5 +224,21 @@ contract Stakeholder {
         console.log("Manufacturer is: ", SHdrugs[0].manufac);
         safeDrug();
     }
- 
+
+    //payable addresses and cost of drugs (only between two stake holders) 
+    address private payer; //Manufacturer 
+    //cannot redefine who the payee is because its a payable address so theres a type mismatch?
+    address payable private payee = payable(0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2); //Wholesaler 
+    uint private drugCost = msg.value;
+    mapping(address => uint) private deposits;
+    //transfer the money for the drug 
+    function transfer() public payable{
+        //Eth transfer deposit 
+        deposits[payee] = deposits[payee] + drugCost; 
+        //withdraw 
+        uint payment = deposits[payee];
+        deposits[payee] = 0;
+        payee.transfer(payment);
+    }
+
 }
