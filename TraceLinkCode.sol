@@ -34,7 +34,7 @@ contract Stakeholder {
  
     //initalise the smart contract
     constructor() public payable{ 
-        payer = msg.sender;
+        payer = payable(msg.sender);
         //alarms console 
         console.log("Stakeholder contract deployed by:", manufacturer);
         //sets variables 
@@ -157,34 +157,14 @@ contract Stakeholder {
         //initialisation 
         bool init_a = SHdrugs[0].init;
         bool init_b = f_init;
-        if(keccak256(abi.encodePacked((name_a))) == keccak256(abi.encodePacked((name_b)))){
-            if(keccak256(abi.encodePacked((ingred_a))) == keccak256(abi.encodePacked((ingred_b)))){
-                if(dos_a == dos_b){
-                    if(keccak256(abi.encodePacked((warn_a))) == keccak256(abi.encodePacked((warn_b)))){
-                        if(keccak256(abi.encodePacked((manufac_a))) == keccak256(abi.encodePacked((manufac_b)))){
-                            if(init_a == init_b){
-                                console.log("Drug is safe");
-                                return true;
-                            } else {
-                                console.log("Drug is unsafe!");
-                                return false;
-                            }
-                        } else {
-                            console.log("Drug is unsafe!");
-                            return false;
-                        }
-                    } else {
-                        console.log("Drug is unsafe!");
-                        return false;
-                    }
-                } else {
-                    console.log("Drug is unsafe!");
-                    return false;
-                }
-            } else {
-                console.log("Drug is unsafe!");
-                return false;
-            }
+        if(keccak256(abi.encodePacked((name_a))) == keccak256(abi.encodePacked((name_b))) &&
+        keccak256(abi.encodePacked((ingred_a))) == keccak256(abi.encodePacked((ingred_b))) && 
+        dos_a == dos_b &&
+        keccak256(abi.encodePacked((warn_a))) == keccak256(abi.encodePacked((warn_b))) &&
+        keccak256(abi.encodePacked((manufac_a))) == keccak256(abi.encodePacked((manufac_b))) && 
+        init_a == init_b){
+            console.log("Drug is safe");
+            return true;
         } else {
             console.log("Drug is unsafe!");
             return false;
@@ -225,10 +205,9 @@ contract Stakeholder {
         safeDrug();
     }
 
-    //payable addresses and cost of drugs (only between two stake holders) 
-    address private payer; //Manufacturer 
-    //cannot redefine who the payee is because its a payable address so theres a type mismatch?
-    address payable private payee = payable(0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2); //Wholesaler 
+    //default payable addresses and cost of drugs 
+    address payable private payer; 
+    address payable private payee = payable(wholesaler); 
     uint private drugCost = msg.value;
     mapping(address => uint) private deposits;
     //transfer the money for the drug 
